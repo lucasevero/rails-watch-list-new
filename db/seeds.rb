@@ -17,10 +17,14 @@ api_key = ENV['TMDB_KEY']
   raw_response = URI.open(api_url).read
   response = JSON.parse(raw_response)
   response['results'].each do |movie|
-    Movie.create(title: movie['title'],
-                 overview: movie['overview'],
-                 poster_url: "https://image.tmdb.org/t/p/w500/#{movie['poster_path']}",
-                 rating: movie['vote_average'])
+    poster_url = "https://image.tmdb.org/t/p/w500/#{movie['poster_path']}"
+    movie = Movie.new(title: movie['title'],
+                      overview: movie['overview'],
+                      poster_url: poster_url,
+                      rating: movie['vote_average'])
+    file = URI.open(poster_url)
+    movie.photo.attach(io: file, filename: 'poster.png', content_type: 'image/png')
+    movie.save
   end
 end
 
